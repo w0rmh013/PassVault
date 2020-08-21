@@ -63,7 +63,7 @@ class VaultCore(object):
         if not self._is_vault_file():
             raise InvalidVaultFormat()
 
-    def _gen_key(self, salt):
+    def _generate_key(self, salt):
         return generate_key_from_master_password(self._master_password, salt, self.KEY_SIZE, self.PBKDF2_ITER_COUNT)
 
     def _encrypt_vault(self, key, iv, data):
@@ -123,7 +123,7 @@ class VaultCore(object):
             data (bytes): Vault data to write to file
         """
         salt = get_random_bytes(self.SALT_SIZE)
-        key = self._gen_key(salt)
+        key = self._generate_key(salt)
         iv = get_random_bytes(self.IV_SIZE)
 
         # Encrypt vault's data
@@ -154,7 +154,7 @@ class VaultCore(object):
         vault_hash = enc_data[-self.SHA512_SIZE:]
         enc_data = enc_data[:-self.SHA512_SIZE]
 
-        key = self._gen_key(salt)
+        key = self._generate_key(salt)
 
         data, dec_vault_hash = self._decrypt_vault(key, iv, enc_data)
 
