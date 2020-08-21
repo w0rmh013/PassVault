@@ -93,7 +93,10 @@ class VaultCore(object):
         """
         cipher = AES.new(key, mode=AES.MODE_CBC, IV=iv)
         
-        data = cipher.decrypt(enc_data)
+        try:
+            data = cipher.decrypt(enc_data)
+        except ValueError:
+            raise pvlt.CorruptedVaultException()
 
         dec_vault_hash = data[-self.SHA512_SIZE:]
         self._data = pvlt.unpad(data[:-self.SHA512_SIZE])

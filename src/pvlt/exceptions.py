@@ -20,3 +20,7 @@ class VaultDataNotInitialized(Exception):
 
 class VaultMasterPasswordIncorrect(Exception):
     pass
+
+
+class CorruptedVaultException(Exception):
+    pass
