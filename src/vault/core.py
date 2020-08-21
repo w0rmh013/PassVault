@@ -20,7 +20,7 @@ class VaultCore(object):
     VAULT_MAGIC = b'PVLT'
     VAULT_MAGIC_SIZE = len(VAULT_MAGIC)
 
-    def __init__(self, master_password, pvlt_file_name=None):
+    def __init__(self, master_password, vault_file_name=None):
         """Create VaultCore instance
         
         Args:
@@ -31,10 +31,10 @@ class VaultCore(object):
             NoVaultFileProvided: Path to vault was not provided and does not exist in an environment variable
         """
         # In case a default or custom vault file does not exist
-        if not pvlt_file_name and not (pvlt_file_name := os.environ.get(self.VAULT_ENVVAR)):
+        if not vault_file_name and not (vault_file_name := os.environ.get(self.VAULT_ENVVAR)):
             raise NoVaultFileProvided()
         
-        self._file_name = pvlt_file_name
+        self._file_name = vault_file_name
 
         self._master_password = master_password
 
@@ -142,7 +142,7 @@ class VaultCore(object):
             VaultMasterPasswordIncorrect: Vault's master-password is incorrect
         """
         with open(self._file_name, 'rb') as vaultfile:
-            # PVLT magic
+            # Vault magic
             vaultfile.read(self.VAULT_MAGIC_SIZE)
             
             salt = vaultfile.read(self.SALT_SIZE)
