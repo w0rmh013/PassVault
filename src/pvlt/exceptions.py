@@ -1,14 +1,22 @@
 class NoVaultFileProvided(Exception):
-	pass
+    pass
 
 
 class InvalidVaultFormat(Exception):
-	pass
+    pass
 
 
 class VaultFileDoesNotExist(Exception):
-	pass
+    pass
 
 
 class VaultFileExists(Exception):
-	pass
+    pass
+
+
+class VaultDataNotInitialized(Exception):
+    pass
+
+
+class VaultMasterPasswordIncorrect(Exception):
+    pass

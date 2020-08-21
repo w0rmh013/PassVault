@@ -1,31 +1,44 @@
-import os
-
 import pvlt
+from vault_core import VaultCore
 
 
-class Vault(object):
-	PVLTFILE_ENVVAR = 'PVLTFILE'
-	PVLTFILE_MAGIC = b'PVLT'
+class Vault(VaultCore):
+    def __init__(self, master_password, pvlt_file_name=None):
+        """Create Vault instance
+        
+        Args:
+            master_password (str): Master password string for vault
+            vault_file_name (None, optional): Path to PVLT file (Default: The environment variable 'PVLTFILE')
+        """
+        super().__init__(master_password, pvlt_file_name)
 
-	def __init__(self, vault_file_name=None):
-		# In case a default or custom vault file does not exist
-		if not vault_file_name and not (vault_file_name := os.environ.get(Vault.PVLTFILE_ENVVAR)):
-			raise pvlt.NoVaultFileProvided()
-		
-		self._file_name = vault_file_name
+    def new(self):
+        """Create new empty PVLT file
+        
+        Raises:
+            pvlt.VaultFileExists: The file already exists
+        """
+        if pvlt.file_exists(self._file_name):
+            raise pvlt.VaultFileExists()
 
-	def _is_pvlt_file(self):
-		with open(self._file_name, 'rb') as pvltfile:
-			return pvltfile.read(4) == Vault.PVLTFILE_MAGIC:
+        self._data = b''
+        self.write_to_pvlt_file()
 
-	def create(self):
-		if pvlt.file_exists(self._file_name):
-			raise pvlt.VaultFileExists()
+    def open(self):
+        """Open existing PVLT file
+        
+        Raises:
+            pvlt.InvalidVaultFormat: PVLT file magic is wrong
+            pvlt.VaultFileDoesNotExist: The PVLT file does not exist
+        """
+        if not pvlt.file_exists(self._file_name):
+            raise pvlt.VaultFileDoesNotExist()
 
+        if not self._is_pvlt_file():
+            raise pvlt.InvalidVaultFormat()
 
-def main():
-	v = Vault()
+        self.read_from_pvlt_file()
 
-
-if __name__ == '__main__':
-	main()
+    def add(self, data):
+        self._data = data
+        self.write_to_pvlt_file()
