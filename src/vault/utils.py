@@ -65,3 +65,11 @@ def pad(x, bs):
 
 def unpad(x):
     return x[:-x[-1]]
+
+
+def yes_no_prompt(message):
+    y = ['yes', 'Yes', 'YES', 'y', 'Y']
+    # n = ['no', 'No', 'NO', 'n', 'N']
+
+    selection = input(message + ' [Y/n]')
+    return selection in y

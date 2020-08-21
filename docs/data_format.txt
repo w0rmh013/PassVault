@@ -1,0 +1,16 @@
+{
+    "github.com": {
+        "creation_time": 1598043432.9729912,
+        "last_copy_time": 1598043524.477778,
+        "username": "example1337",
+        "email": "w0rm@h013.com",
+        "password": "Password1",
+        "comment": "Important passwd"
+    },
+    "gmail.com": {
+        "creation_time": 1598043329.4111187,
+        "last_copy_time": 1598043545.8713257,
+        "email": "w0rm_br0@gmail.com",
+        "password": "1337Pass1337"
+    }
+}
