@@ -163,8 +163,11 @@ class VaultCore(object):
 
         return data
 
-    def new(self):
-        """Create new empty vault file
+    def new(self, data):
+        """Create new vault file with data
+
+        Args:
+            data (bytes): Vault data
         
         Raises:
             VaultFileExists: The file already exists
@@ -172,7 +175,7 @@ class VaultCore(object):
         if file_exists(self._file_name):
             raise VaultFileExists()
 
-        self._write_to_vault_file(b'')
+        self._write_to_vault_file(data)
 
     def read(self):
         """Read data from existing vault file"""

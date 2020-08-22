@@ -23,7 +23,7 @@ class PassVault(vault.VaultCore):
         """
         super().__init__(master_password, vault_file_name)
 
-        self._data = None
+        self._data = dict()
 
     def _encode(self):
         """Encode vault data to JSON
@@ -47,6 +47,10 @@ class PassVault(vault.VaultCore):
         except ValueError:
             raise vault.CorruptedVaultException()
 
+    def new(self):
+        """Create new vault with empty data"""
+        super().new(self._encode())
+
     def load(self):
         """Load vault data from file"""
         data = self.read()
@@ -54,7 +58,7 @@ class PassVault(vault.VaultCore):
 
     def save(self):
         """Save vault data to file"""
-        data = self._encode(self._data)
+        data = self._encode()
         self.write(data)
         self._data = None
 
@@ -144,7 +148,7 @@ class PassVault(vault.VaultCore):
 
         self.add_entry(entry_id, properties, check_existence=False)
 
-    def get_entry(self, entry_id):
+    def get_entry(self, entry_id, hide_password=True):
         """Get entry data from vault
         
         Args:
@@ -159,7 +163,22 @@ class PassVault(vault.VaultCore):
         if not self._entry_exists(entry_id):
             raise vault.EntryDoesNotExist()
 
-        return self._data[entry_id]
+        copy_data = dict(self._data[entry_id])
+        if hide_password:
+            copy_data[self.PASSWORD] = self.HIDDEN_PASSWORD
+        else:
+            # Password is revealed, update field
+            self._data[entry_id][self.LAST_REVEALED] = time.time()
+            copy_data[self.LAST_REVEALED] = self._data[entry_id][self.LAST_REVEALED]
+
+        # Convert time in seconds to human-readable format
+        copy_data[self.LAST_MODIFIED] = vault.seconds_to_human_readable(self.TIME_FORMAT, self._data[entry_id][self.LAST_MODIFIED])
+        if self._data[entry_id][self.LAST_REVEALED]:
+            copy_data[self.LAST_REVEALED] = vault.seconds_to_human_readable(self.TIME_FORMAT, self._data[entry_id][self.LAST_REVEALED])
+        else:
+            copy_data[self.LAST_REVEALED] = None
+
+        return copy_data
 
     def get_password(self, entry_id):
         """Get password from vault entry
@@ -176,7 +195,7 @@ class PassVault(vault.VaultCore):
         if not self._entry_exists(entry_id):
             raise vault.EntryDoesNotExist()
 
-        # Update reveal time
+        # Password is revealed, update field
         self._data[entry_id][self.LAST_REVEALED] = time.time()
         return self._data[entry_id]['password']
 
@@ -184,7 +203,7 @@ class PassVault(vault.VaultCore):
         """List all entries in vault by ID 
         
         Returns:
-            list: List of entry IDs
+            dict_keys: List of entry IDs
         """
         return self._data.keys()
 
@@ -205,13 +224,16 @@ class PassVault(vault.VaultCore):
             if only_builtins:
                 copy_data[entry_id] = dict()
             else:
-                copy_data[entry_id] = self._data[entry_id]
+                copy_data[entry_id] = dict(self._data[entry_id])
                 # Replace password with filler string
                 if hide_passwords:
                     copy_data[entry_id][self.PASSWORD] = self.HIDDEN_PASSWORD
+                else:
+                    # Password is revealed, update field
+                    self._data[entry_id][self.LAST_REVEALED] = time.time()
 
             # Convert time in seconds to human-readable format
-            copy_data[entry_id][self.LAST_MODIFIED] = time.strftime(self.TIME_FORMAT, self._data[entry_id][self.LAST_MODIFIED])
-            copy_data[entry_id][self.LAST_REVEALED] = time.strftime(self.TIME_FORMAT, self._data[entry_id][self.LAST_REVEALED])
+            copy_data[entry_id][self.LAST_MODIFIED] = vault.seconds_to_human_readable(self.TIME_FORMAT, self._data[entry_id][self.LAST_MODIFIED])
+            copy_data[entry_id][self.LAST_REVEALED] = vault.seconds_to_human_readable(self.TIME_FORMAT, self._data[entry_id][self.LAST_REVEALED])
         
         return copy_data

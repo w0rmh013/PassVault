@@ -3,6 +3,7 @@ from Crypto.Protocol.KDF import PBKDF2
 from Crypto.Random import get_random_bytes
 
 import os
+import time
 
 
 def file_exists(file_path):
@@ -71,5 +72,18 @@ def yes_no_prompt(message):
     y = ['yes', 'Yes', 'YES', 'y', 'Y']
     # n = ['no', 'No', 'NO', 'n', 'N']
 
-    selection = input(message + ' [Y/n]')
+    selection = input(message + ' [Y/n] ')
     return selection in y
+
+
+def seconds_to_human_readable(time_format, seconds):
+    """Convert seconds to formatted time string
+    
+    Args:
+        time_format (str): Format time string
+        seconds (float): Epoch seconds
+    
+    Returns:
+        str: Formatted time string with given time
+    """
+    return time.strftime(time_format, time.localtime(seconds))

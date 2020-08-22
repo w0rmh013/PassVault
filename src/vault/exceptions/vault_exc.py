@@ -1,4 +1,5 @@
-class VaultException(Exception)
+class VaultException(Exception):
+	pass
 
 
 class NoVaultFileProvided(VaultException):
